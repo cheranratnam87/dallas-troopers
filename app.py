@@ -64,13 +64,24 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     padding: 10px 0 20px 0;
     margin-bottom: 20px;
 }
-.brand-wrap {
+.brand-row {
     display:flex;
     align-items:center;
-    gap:28px;
+    justify-content:center;
+    gap:24px;
     flex-wrap:wrap;
 }
-.hero-copy {flex:1; min-width:240px}
+.brand-image {
+    max-width: 460px;
+    width: min(74vw, 460px);
+    display:block;
+    border-radius: 999px;
+    box-shadow: 0 18px 26px rgba(0,0,0,0.18);
+}
+.hero-copy {
+    text-align:left;
+    min-width:220px;
+}
 .eyebrow {
     color:#f7d27c;
     letter-spacing:3px;
@@ -80,7 +91,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     margin-bottom:8px;
 }
 .hero-copy h1 {
-    font-size: clamp(2.3rem, 4vw, 4rem);
+    font-size: clamp(2.2rem, 3.5vw, 3.8rem);
     line-height:0.9;
     margin:0;
     letter-spacing:-0.06em;
@@ -90,15 +101,9 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     color:#dfe9ff;
     font-size:1.05rem;
 }
-.trooper-mark {
-    width:min(430px, 68vw);
-    height:auto;
-    display:block;
-    filter: drop-shadow(0 18px 28px rgba(0,0,0,0.18));
-}
 @media (max-width: 720px) {
-    .brand-wrap {justify-content:center; text-align:center}
-    .hero-copy {width:100%}
+    .brand-row {text-align:center}
+    .hero-copy {text-align:center}
 }
 </style>''', unsafe_allow_html=True)
 
@@ -120,69 +125,27 @@ def storage(url):
 (ROOT / 'data').mkdir(exist_ok=True)
 db = storage(setting('DATABASE_URL', f'sqlite:///{ROOT / "data/troopers.db"}'))
 admin_password = str(setting('ADMIN_PASSWORD'))
+logo_path = ROOT / 'assets' / 'dallas-troopers-logo.png'
 configured = len(admin_password) >= 12
-st.markdown('''
-<div class="hero">
-  <div class="brand-wrap">
-    <svg class="trooper-mark" viewBox="0 0 480 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Dallas Troopers logo">
-      <circle cx="240" cy="240" r="214" fill="#f2ebdf"/>
-      <g fill="#e9b84f">
-        <path d="M70 116 L82 142 L110 142 L88 160 L100 188 L70 170 L40 188 L52 160 L30 142 L58 142 Z"/>
-        <path d="M410 118 L422 144 L450 144 L428 162 L440 190 L410 172 L380 190 L392 162 L370 144 L398 144 Z"/>
-      </g>
-      <g>
-        <g transform="translate(18 22)">
-          <path d="M120 270 C110 180, 105 120, 160 90 L265 90 C315 90, 333 148, 335 220 C337 290, 300 320, 245 320 L148 320 C130 320, 120 310, 120 270 Z" fill="#1e3a74"/>
-          <path d="M150 120 L255 120 C289 120, 300 155, 298 202 C296 255, 275 275, 243 275 L150 275 C130 275, 120 260, 120 240 L120 150 C120 134, 133 120, 150 120 Z" fill="#1e3a74"/>
-          <path d="M110 150 L130 181 L155 181 L132 205 L140 230 L110 214 L80 230 L88 205 L65 181 L90 181 Z" fill="#e9b84f" opacity="0.95"/>
-          <path d="M116 113 L250 113 C294 113, 318 134, 330 170 C332 178, 332 188, 332 190 L272 190 C260 170, 240 156, 214 156 L150 156 C138 156, 130 148, 126 141 L116 113 Z" fill="#f0c55a"/>
-          <path d="M114 280 L112 226 L215 226 C255 226, 286 243, 305 270 C314 284, 319 301, 316 320 L160 320 C134 320, 120 305, 114 280 Z" fill="#1f4a8d"/>
-          <path d="M118 260 L241 260 L255 300 L140 300 Z" fill="#f2ebdf" opacity="0.18"/>
-          <path d="M130 278 L250 278" stroke="#e9b84f" stroke-width="12" stroke-linecap="round"/>
-          <g fill="none" stroke="#e9b84f" stroke-width="8" stroke-linecap="round">
-            <path d="M142 200 L220 200"/>
-            <path d="M142 220 L220 220"/>
-            <path d="M142 240 L220 240"/>
-            <path d="M142 260 L220 260"/>
-            <path d="M150 170 L200 170"/>
-          </g>
-        </g>
-        <path d="M250 220 L404 220 L405 300 L250 300 Z" fill="#c9101d"/>
-        <path d="M152 232 L322 232 L332 227 L348 266 L302 310 L236 310 L193 268 L152 232 Z" fill="#c9101d"/>
-        <path d="M250 222 L250 332 L410 332 L385 274 L337 273 L322 232 Z" fill="#123d7a"/>
-        <path d="M250 208 L337 208 L370 270 L250 270 Z" fill="#d32e35"/>
-        <path d="M250 230 L402 230" stroke="#d9af53" stroke-width="16"/>
-        <g transform="translate(350 185)">
-          <circle cx="0" cy="35" r="35" fill="#f7f7f7"/>
-          <circle cx="0" cy="35" r="23" fill="#fff" stroke="#1d3f75" stroke-width="4"/>
-          <g stroke="#1d3f75" stroke-width="3" fill="none">
-            <path d="M0 0 L0 70"/>
-            <path d="M-18 7 L18 7"/>
-            <path d="M-18 17 L18 17"/>
-            <path d="M-18 27 L18 27"/>
-            <path d="M-18 37 L18 37"/>
-            <path d="M-18 47 L18 47"/>
-            <path d="M-18 57 L18 57"/>
-            <path d="M-18 67 L18 67"/>
-            <path d="M-26 35 L26 35"/>
-          </g>
-        </g>
-      </g>
-      <g fill="#d9af53">
-        <path d="M55 410 L297 410 L286 432 L65 432 Z"/>
-        <path d="M105 392 L290 392 L290 408 L105 408 Z"/>
-      </g>
-      <text x="240" y="110" fill="#ba1b2d" font-size="76" font-weight="900" text-anchor="middle" style="font-family: Arial, Helvetica, sans-serif; letter-spacing: 2px;">DALLAS</text>
-      <text x="240" y="336" fill="#103c72" font-size="82" font-weight="900" text-anchor="middle" style="font-family: Arial, Helvetica, sans-serif; letter-spacing: 2px;">TROOPERS</text>
-    </svg>
-    <div class="hero-copy">
-      <div class="eyebrow">One team. Every match.</div>
-      <h1>Dallas Troopers</h1>
-      <p>Your matchday, availability and umpiring — in one place.</p>
+
+st.markdown('<div class="hero">', unsafe_allow_html=True)
+if logo_path.exists():
+    col_logo, col_text = st.columns([1.3, 1])
+    with col_logo:
+        st.image(str(logo_path), use_container_width=True, output_format='PNG')
+    with col_text:
+        st.markdown('<div class="eyebrow">One team. Every match.</div><h1>Dallas Troopers</h1><p>Your matchday, availability and umpiring — in one place.</p>', unsafe_allow_html=True)
+else:
+    st.markdown('''
+    <div class="brand-row">
+      <div class="hero-copy">
+        <div class="eyebrow">One team. Every match.</div>
+        <h1>Dallas Troopers</h1>
+        <p>Your matchday, availability and umpiring — in one place.</p>
+      </div>
     </div>
-  </div>
-</div>
-''', unsafe_allow_html=True)
+    ''', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 fmt = st.radio('Competition format', ['T20', 'T40'], horizontal=True)
 team_id = str(setting(f'{fmt}_TEAM_ID', '4043' if fmt == 'T20' else '3885'))
 with st.sidebar:
