@@ -10,7 +10,7 @@ from store import Store
 from data import FIELDS, STATUSES, RESULTS, source_url, validate, read_csv, fetch_fixtures, parse_schedule
 
 ROOT = Path(__file__).parent
-st.set_page_config(page_title='Dallas Troopers · Team Hub', page_icon='🏏', layout='wide')
+st.set_page_config(page_title='LC Dallas Troopers', layout='wide')
 st.markdown('''<style>
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
     background: linear-gradient(135deg, #0b1d32 0%, #123a63 28%, #1a4d7b 52%, #081521 100%);
@@ -146,7 +146,11 @@ st.markdown('''
   <div class="brand-row">
     <div class="hero-copy">
       <div class="eyebrow">One team. Every match.</div>
-      <h1>Dallas Troopers</h1>
+      <h1>
+        <span style="color:#a8142d;">LC</span>
+        <span style="color:#d9af53;"> Dallas</span>
+        <span style="color:#1f4f8f;"> Troopers</span>
+      </h1>
       <p>Your matchday, availability and umpiring — in one place.</p>
     </div>
     <div class="side-stripe"></div>

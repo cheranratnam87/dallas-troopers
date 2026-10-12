@@ -1,4 +1,4 @@
-# Dallas Troopers Team Hub
+# LC Dallas Troopers
 
 A Streamlit app for LC Troopers (T20, team 4043) and LC Dallas Troopers (T40, team 3885).
 
