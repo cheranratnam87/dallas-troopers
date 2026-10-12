@@ -13,7 +13,7 @@ ROOT = Path(__file__).parent
 st.set_page_config(page_title='Dallas Troopers · Team Hub', page_icon='🏏', layout='wide')
 st.markdown('''<style>
 html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
-    background: linear-gradient(135deg, #0b1d32 0%, #133a63 28%, #1a4d7b 52%, #081521 100%);
+    background: linear-gradient(135deg, #0b1d32 0%, #123a63 28%, #1a4d7b 52%, #081521 100%);
     color: #edf3ff;
 }
 .block-container {max-width:1180px;padding-top:4.5rem;padding-bottom:3rem}
@@ -67,20 +67,14 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
 .brand-row {
     display:flex;
     align-items:center;
-    justify-content:center;
-    gap:24px;
+    justify-content:space-between;
+    gap:20px;
     flex-wrap:wrap;
-}
-.brand-image {
-    max-width: 460px;
-    width: min(74vw, 460px);
-    display:block;
-    border-radius: 999px;
-    box-shadow: 0 18px 26px rgba(0,0,0,0.18);
 }
 .hero-copy {
     text-align:left;
     min-width:220px;
+    flex: 1;
 }
 .eyebrow {
     color:#f7d27c;
@@ -91,7 +85,7 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     margin-bottom:8px;
 }
 .hero-copy h1 {
-    font-size: clamp(2.2rem, 3.5vw, 3.8rem);
+    font-size: clamp(2.3rem, 4vw, 4rem);
     line-height:0.9;
     margin:0;
     letter-spacing:-0.06em;
@@ -101,9 +95,17 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     color:#dfe9ff;
     font-size:1.05rem;
 }
+.side-stripe {
+    width: 14px;
+    min-height: 110px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #b7142b 0%, #d9af53 34%, #1a4d7b 100%);
+    box-shadow: 0 0 20px rgba(217,175,83,0.38);
+}
 @media (max-width: 720px) {
     .brand-row {text-align:center}
     .hero-copy {text-align:center}
+    .side-stripe {display:none}
 }
 </style>''', unsafe_allow_html=True)
 
@@ -125,27 +127,19 @@ def storage(url):
 (ROOT / 'data').mkdir(exist_ok=True)
 db = storage(setting('DATABASE_URL', f'sqlite:///{ROOT / "data/troopers.db"}'))
 admin_password = str(setting('ADMIN_PASSWORD'))
-logo_path = ROOT / 'assets' / 'dallas-troopers-logo.png'
 configured = len(admin_password) >= 12
-
-st.markdown('<div class="hero">', unsafe_allow_html=True)
-if logo_path.exists():
-    col_logo, col_text = st.columns([1.3, 1])
-    with col_logo:
-        st.image(str(logo_path), use_container_width=True, output_format='PNG')
-    with col_text:
-        st.markdown('<div class="eyebrow">One team. Every match.</div><h1>Dallas Troopers</h1><p>Your matchday, availability and umpiring — in one place.</p>', unsafe_allow_html=True)
-else:
-    st.markdown('''
-    <div class="brand-row">
-      <div class="hero-copy">
-        <div class="eyebrow">One team. Every match.</div>
-        <h1>Dallas Troopers</h1>
-        <p>Your matchday, availability and umpiring — in one place.</p>
-      </div>
+st.markdown('''
+<div class="hero">
+  <div class="brand-row">
+    <div class="hero-copy">
+      <div class="eyebrow">One team. Every match.</div>
+      <h1>Dallas Troopers</h1>
+      <p>Your matchday, availability and umpiring — in one place.</p>
     </div>
-    ''', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+    <div class="side-stripe"></div>
+  </div>
+</div>
+''', unsafe_allow_html=True)
 fmt = st.radio('Competition format', ['T20', 'T40'], horizontal=True)
 team_id = str(setting(f'{fmt}_TEAM_ID', '4043' if fmt == 'T20' else '3885'))
 with st.sidebar:
