@@ -3,12 +3,14 @@ import tempfile
 import unittest
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
-from data import validate, read_csv, parse_schedule
+from data import validate, read_csv, parse_schedule, refresh_fixtures
 from store import Store
 
 
 def fixture(fmt='T20', kind='Game', **kwargs):
-    return validate([dict(id='100',starts='2026-12-01T09:30',home='Troopers',away='Visitors',**kwargs)],fmt,kind)[0]
+    data = dict(id='100', starts='2026-12-01T09:30', home='Troopers', away='Visitors')
+    data.update(kwargs)
+    return validate([data], fmt, kind)[0]
 
 
 class DataTests(unittest.TestCase):
@@ -47,10 +49,18 @@ class DataTests(unittest.TestCase):
         self.assertEqual(parsed[0]['starts'],'2026-10-17T13:00')
         with self.assertRaises(ValueError): parse_schedule(html,'T40','Game','3885')
         with self.assertRaises(ValueError): parse_schedule('<title>Just a moment</title>','T20','Game','4043')
+    def test_refresh_fixtures_updates_saved_schedule(self):
+        self.db.save_fixtures([fixture(starts='2026-12-01T09:30')])
+        with unittest.mock.patch('data.fetch_fixtures', return_value=[dict(fixture(), starts='2026-12-02T09:30')]):
+            refreshed, msg = refresh_fixtures(self.db, '4043', 'T20', 'Game')
+        self.assertTrue(refreshed)
+        self.assertIn('Updated', msg)
+        self.assertEqual(self.db.rows('SELECT starts FROM fixtures WHERE id=:id', id='T20:Game:100')[0]['starts'], '2026-12-02T09:30')
     def test_app_navigation_and_save(self):
         from streamlit.testing.v1 import AppTest
         os.environ['DATABASE_URL']='sqlite:///'+self.temp.name+'/ui.db'
         os.environ['ADMIN_PASSWORD']='test-password-only'
+        os.environ['AUTO_SCHEDULE_REFRESH']='false'
         ui_store = Store(os.environ['DATABASE_URL'])
         from datetime import datetime, timedelta
         future = (datetime.now() + timedelta(days=7)).isoformat(timespec='minutes')
@@ -76,5 +86,6 @@ class DataTests(unittest.TestCase):
         finally:
             os.environ.pop('DATABASE_URL',None)
             os.environ.pop('ADMIN_PASSWORD',None)
+            os.environ.pop('AUTO_SCHEDULE_REFRESH',None)
 
 if __name__=='__main__': unittest.main()

@@ -7,7 +7,7 @@ import time as clock
 import pandas as pd
 import streamlit as st
 from store import Store
-from data import FIELDS, STATUSES, RESULTS, source_url, validate, read_csv, fetch_fixtures, parse_schedule
+from data import FIELDS, STATUSES, RESULTS, source_url, validate, read_csv, fetch_fixtures, parse_schedule, refresh_fixtures
 
 ROOT = Path(__file__).parent
 st.set_page_config(page_title='LC Dallas Troopers', layout='wide')
@@ -159,6 +159,7 @@ st.markdown('''
 ''', unsafe_allow_html=True)
 fmt = st.radio('Competition format', ['T20', 'T40'], horizontal=True)
 team_id = str(setting(f'{fmt}_TEAM_ID', '4043' if fmt == 'T20' else '3885'))
+auto_refresh = str(setting('AUTO_SCHEDULE_REFRESH', 'true')).strip().lower() not in ('false', '0', 'no', 'off')
 with st.sidebar:
     st.markdown('### 🏏 TROOPERS')
     st.caption('DALLAS · NORTH TEXAS CRICKET')
@@ -178,6 +179,17 @@ if not db.rows('SELECT id FROM fixtures LIMIT 1') and (ROOT / 'fixtures.csv').ex
     seed = pd.read_csv(ROOT / 'fixtures.csv', keep_default_na=False, dtype=str)
     for (f, k), group in seed.groupby(['format', 'kind']):
         db.save_fixtures(validate(group.to_dict('records'), f, k))
+
+schedule_sync = []
+if auto_refresh:
+    for kind in ('Game', 'Umpiring'):
+        refreshed, status = refresh_fixtures(db, team_id, fmt, kind)
+        if refreshed:
+            schedule_sync.append(status)
+        elif 'Could not refresh' not in status:
+            schedule_sync.append(status)
+if schedule_sync:
+    st.caption(' · '.join(schedule_sync[:2]))
 
 fixtures = db.rows('SELECT * FROM fixtures WHERE format=:fmt ORDER BY starts', fmt=fmt)
 now = datetime.now(ZoneInfo('America/Chicago')).replace(tzinfo=None)

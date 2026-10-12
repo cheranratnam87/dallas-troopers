@@ -102,6 +102,21 @@ def parse_schedule(html, fmt, kind, team_id):
     return validate(records, fmt, kind)
 
 
+def refresh_fixtures(db, team_id, fmt, kind):
+    """Fetch the latest schedule from CricClubs and save it without dropping existing data."""
+    try:
+        updated = fetch_fixtures(team_id, fmt, kind)
+    except Exception as exc:  # pragma: no cover - network and CAPTCHA failures are handled by the app.
+        return False, f'Could not refresh {fmt} {kind}: {exc}'
+    current = {r['id']: {k: v for k, v in r.items() if k != 'updated'} for r in db.rows('SELECT * FROM fixtures WHERE format=:fmt AND kind=:kind', fmt=fmt, kind=kind)}
+    latest = {r['id']: {k: v for k, v in r.items() if k != 'updated'} for r in updated}
+    changed = current != latest
+    db.save_fixtures(updated)
+    if changed:
+        return True, f'Updated {fmt} {kind} schedule from CricClubs ({len(updated)} fixtures).'
+    return False, f'{fmt} {kind} schedule already matches CricClubs.'
+
+
 def fetch_fixtures(team_id, fmt, kind):
     response = requests.get(source_url(team_id, kind), timeout=20, headers={'User-Agent': 'DallasTroopersTeamApp/1.0'})
     if response.status_code in (403,429):
