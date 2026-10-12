@@ -159,7 +159,7 @@ st.markdown('''
 ''', unsafe_allow_html=True)
 fmt = st.radio('Competition format', ['T20', 'T40'], horizontal=True)
 team_id = str(setting(f'{fmt}_TEAM_ID', '4043' if fmt == 'T20' else '3885'))
-auto_refresh = str(setting('AUTO_SCHEDULE_REFRESH', 'false')).strip().lower() not in ('false', '0', 'no', 'off')
+auto_refresh = str(setting('AUTO_SCHEDULE_REFRESH', 'true')).strip().lower() not in ('false', '0', 'no', 'off')
 with st.sidebar:
     st.markdown('### 🏏 TROOPERS')
     st.caption('DALLAS · NORTH TEXAS CRICKET')
@@ -174,11 +174,10 @@ entered_name = st.text_input('Your name', key='player_name', max_chars=80, place
 player = ' '.join(entered_name.split()).casefold()
 st.caption('No signup. Use the same name each time to update your reply. Team members can view these responses.')
 
-# Initial verified league snapshot, only on an empty database.
-if not db.rows('SELECT id FROM fixtures LIMIT 1') and (ROOT / 'fixtures.csv').exists():
-    seed = pd.read_csv(ROOT / 'fixtures.csv', keep_default_na=False, dtype=str)
-    for (f, k), group in seed.groupby(['format', 'kind']):
-        db.save_fixtures(validate(group.to_dict('records'), f, k))
+# Keep the live database aligned with the repo's current schedule snapshot.
+if auto_refresh and (ROOT / 'fixtures.csv').exists():
+    from data import sync_repo_fixtures
+    sync_repo_fixtures(db, ROOT / 'fixtures.csv')
 
 schedule_sync = []
 if auto_refresh:

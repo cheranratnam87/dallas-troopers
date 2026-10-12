@@ -65,6 +65,13 @@ class DataTests(unittest.TestCase):
         with open(output, newline='') as csv_file:
             rows = list(csv.DictReader(csv_file))
         self.assertEqual(rows[0]['starts'], '2026-12-02T09:30')
+    def test_repo_csv_sync_updates_database(self):
+        repo_csv = Path(self.temp.name) / 'fixtures.csv'
+        repo_csv.write_text('format,kind,id,starts,home,away,venue,competition,status,result,score,url,assignees\nT20,Game,100,2026-12-11T09:30,Troopers,Visitors,,,Scheduled,,,\n', encoding='utf-8')
+        self.db.save_fixtures([fixture(starts='2026-12-01T09:30')])
+        from data import sync_repo_fixtures
+        sync_repo_fixtures(self.db, repo_csv)
+        self.assertEqual(self.db.rows('SELECT starts FROM fixtures WHERE id=:id', id='T20:Game:100')[0]['starts'], '2026-12-11T09:30')
     def test_app_navigation_and_save(self):
         from streamlit.testing.v1 import AppTest
         os.environ['DATABASE_URL']='sqlite:///'+self.temp.name+'/ui.db'

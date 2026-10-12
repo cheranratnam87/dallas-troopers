@@ -61,6 +61,31 @@ def read_csv(payload, fmt, kind):
     return validate(list(csv.DictReader(io.StringIO(payload.decode('utf-8-sig')))), fmt, kind)
 
 
+def sync_repo_fixtures(db, csv_path):
+    if not csv_path.exists():
+        return 0
+    with open(csv_path, newline='', encoding='utf-8') as handle:
+        records = list(csv.DictReader(handle))
+    if not records:
+        return 0
+    latest_by_id = {}
+    by_format_kind = {}
+    for row in records:
+        key = (row.get('format', ''), row.get('kind', ''))
+        by_format_kind.setdefault(key, []).append(row)
+    for (fmt, kind), grouped in by_format_kind.items():
+        if fmt and kind:
+            validated = validate(grouped, fmt, kind)
+            for record in validated:
+                latest_by_id[record['id']] = {k: v for k, v in record.items() if k != 'updated'}
+    current_rows = db.rows('SELECT * FROM fixtures')
+    current_by_id = {row['id']: {k: v for k, v in row.items() if k != 'updated'} for row in current_rows}
+    if current_by_id == latest_by_id:
+        return 0
+    db.save_fixtures(list(latest_by_id.values()))
+    return len(latest_by_id)
+
+
 def parse_schedule(html, fmt, kind, team_id):
     from urllib.parse import urljoin
     soup = BeautifulSoup(html, 'html.parser')
