@@ -159,7 +159,7 @@ st.markdown('''
 ''', unsafe_allow_html=True)
 fmt = st.radio('Competition format', ['T20', 'T40'], horizontal=True)
 team_id = str(setting(f'{fmt}_TEAM_ID', '4043' if fmt == 'T20' else '3885'))
-auto_refresh = str(setting('AUTO_SCHEDULE_REFRESH', 'true')).strip().lower() not in ('false', '0', 'no', 'off')
+auto_refresh = str(setting('AUTO_SCHEDULE_REFRESH', 'false')).strip().lower() not in ('false', '0', 'no', 'off')
 with st.sidebar:
     st.markdown('### 🏏 TROOPERS')
     st.caption('DALLAS · NORTH TEXAS CRICKET')

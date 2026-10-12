@@ -1,3 +1,4 @@
+import csv
 import os
 import tempfile
 import unittest
@@ -56,6 +57,14 @@ class DataTests(unittest.TestCase):
         self.assertTrue(refreshed)
         self.assertIn('Updated', msg)
         self.assertEqual(self.db.rows('SELECT starts FROM fixtures WHERE id=:id', id='T20:Game:100')[0]['starts'], '2026-12-02T09:30')
+    def test_backend_export_writes_latest_schedule(self):
+        from sync_schedule import export_schedule_csv
+        output = Path(self.temp.name) / 'fixtures.csv'
+        records = [dict(fixture(starts='2026-12-02T09:30'), format='T20', kind='Game')]
+        export_schedule_csv(records, output)
+        with open(output, newline='') as csv_file:
+            rows = list(csv.DictReader(csv_file))
+        self.assertEqual(rows[0]['starts'], '2026-12-02T09:30')
     def test_app_navigation_and_save(self):
         from streamlit.testing.v1 import AppTest
         os.environ['DATABASE_URL']='sqlite:///'+self.temp.name+'/ui.db'

@@ -87,6 +87,16 @@ Download the CSV template from **Captain → Import / refresh CricClubs**. Requi
 - Schedule refresh preserves recorded results and captain assignments. Explicitly edit status when rescheduling a postponed fixture.
 - Native CricClubs CSV columns differ: map them to the provided app template, or import a saved schedule HTML page.
 
+## Backend sync and GitHub deploy
+
+Use the repo-backed sync script to pull the latest CricClubs schedule, update the tracked CSV, and push the new snapshot to GitHub when you want a fresh deployment.
+
+```bash
+python3 sync_schedule.py
+```
+
+The script refreshes both T20 and T40 Game and Umpiring fixtures, writes the latest data into `fixtures.csv`, and then runs `git add`, `git commit`, and `git push` if the schedule changed. Set `AUTO_SCHEDULE_REFRESH=false` in the app environment to keep the streamlit app from attempting its own live refresh while the backend handles sync.
+
 ## Tests
 
 ```sh
