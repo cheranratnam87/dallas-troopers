@@ -1,0 +1,6 @@
+streamlit==1.65.0
+pandas==3.0.6
+requests==2.34.2
+beautifulsoup4==4.15.0
+SQLAlchemy==2.1.4
+psycopg[binary]==3.3.6
