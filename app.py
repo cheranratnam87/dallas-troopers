@@ -96,16 +96,29 @@ div[data-testid="stVerticalBlockBorderWrapper"] {
     font-size:1.05rem;
 }
 .side-stripe {
-    width: 14px;
-    min-height: 110px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, #b7142b 0%, #d9af53 34%, #1a4d7b 100%);
-    box-shadow: 0 0 20px rgba(217,175,83,0.38);
+    width: 10px;
+    min-height: 120px;
+    border-radius: 0;
+    background: linear-gradient(180deg, #a8142d 0%, #d9af53 34%, #1f4f8f 100%);
+    box-shadow: none;
+    opacity: 0.95;
 }
 @media (max-width: 720px) {
     .brand-row {text-align:center}
     .hero-copy {text-align:center}
     .side-stripe {display:none}
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 10px;
+    height: 100vh;
+    background: linear-gradient(180deg, #a8142d 0%, #d9af53 33%, #1f4f8f 100%);
+    z-index: 9999;
+    pointer-events: none;
 }
 </style>''', unsafe_allow_html=True)
 
